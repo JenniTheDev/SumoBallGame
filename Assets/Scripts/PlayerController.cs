@@ -9,15 +9,16 @@ public class PlayerController : MonoBehaviour {
     private GameObject focalPoint;
 
     [SerializeField]
-    private float powerupStrength = 15.0f;
+    private float powerupStrength = 20.0f;
 
     [SerializeField]
-    private float speed = 5.0f;
+    private float speed = 10.0f;
 
     [SerializeField]
     private bool hasPowerup = false;
 
-    public GameObject powerupIndicator;
+    [SerializeField]
+    private GameObject powerupIndicator;
 
     // Start is called before the first frame update
     void Start(){
@@ -33,7 +34,7 @@ public class PlayerController : MonoBehaviour {
         float moveForward = Input.GetAxis("Vertical");
         //rigid bodies don't need time.detla time, they have own 
         playerRb.AddForce(focalPoint.transform.forward * moveForward * speed);
-        powerupIndicator.transform.position = transform.position + new Vector3(0, -0.5f, 0);
+        powerupIndicator.transform.position = transform.position + new Vector3(0, 0.5f, 0);
 
     }
 
