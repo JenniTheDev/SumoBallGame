@@ -1,61 +1,81 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour{
+public class SpawnManager : MonoSingleton<SpawnManager> {
+    #region Fields
+    public Action<int> OnEnemyCountChange;
 
-    [SerializeField]
-    private GameObject powerupPrefab;
-    [SerializeField]
-    private int enemyCount;
-    [SerializeField]
-    private GameObject enemyPrefab;
-    [SerializeField]
-    private float spawnRange = 9.0f;
-    [SerializeField]
-    private int waveNumber = 1;
+    [SerializeField] private int enemyCount;
+    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject powerupPrefab;
+    [SerializeField] private float spawnRange = 9.0f;
+    [SerializeField] private int waveNumber = 1;
+    #endregion Fields
 
-    // Start is called before the first frame update
-    void Start(){
+    #region Properties
+    public int EnemyCount {
+        get { return enemyCount; }
+        private set { enemyCount = value; }
+    }
+    #endregion Properties
 
+    #region MonoBehaviour
+    private void OnDisable() { UnSubscribe(); }
+
+    private void OnEnable() { Subscribe(); }
+
+    private void Start() {
+        GetInitialEnemyCount();
         SpawnPowerupPrefabs();
         SpawnEnemyWave(waveNumber);
-       
+    }
+    #endregion MonoBehaviour
+
+    #region Methods
+    public void BroadcastEnemyCountChange() {
+        OnEnemyCountChange?.Invoke(EnemyCount);
     }
 
-    // Update is called once per frame
-    void Update(){
+    public void UpdateEnemyCount(int delta) {
+        EnemyCount += delta;
+        BroadcastEnemyCountChange();
+    }
 
+    private Vector3 GenerateSpawnPosition() {
+        float spawnPosX = UnityEngine.Random.Range(-spawnRange, spawnRange);
+        float spawnPosZ = UnityEngine.Random.Range(-spawnRange, spawnRange);
+        return new Vector3(spawnPosX, 0, spawnPosZ);
+    }
+
+    private void GetInitialEnemyCount() {
         enemyCount = FindObjectsOfType<Enemy>().Length;
-        if (enemyCount == 0) {
-            waveNumber++; 
+    }
+
+    private void MonitorEnemyCount(int newCount) {
+        if(newCount == 0) {
+            waveNumber++;
             SpawnEnemyWave(waveNumber);
             SpawnPowerupPrefabs();
         }
-        
     }
 
-    Vector3 GenerateSpawnPosition() {
-
-        float spawnPosX = Random.Range(-spawnRange, spawnRange);
-        float spawnPosZ = Random.Range(-spawnRange, spawnRange);
-        Vector3 randomPos = new Vector3(spawnPosX, 0, spawnPosZ);
-        return randomPos;
-
-    }
-
-    void SpawnEnemyWave(int enemiesToSpawn) {
-
-        for (int i = 0; i < enemiesToSpawn; i++) {
+    private void SpawnEnemyWave(int enemiesToSpawn) {
+        for(int i = 0; i < enemiesToSpawn; i++) {
             Instantiate(enemyPrefab, GenerateSpawnPosition(), enemyPrefab.transform.rotation);
-
         }
     }
 
-    void SpawnPowerupPrefabs() {
-
+    private void SpawnPowerupPrefabs() {
         Instantiate(powerupPrefab, GenerateSpawnPosition(), powerupPrefab.transform.rotation);
-
     }
 
+    private void Subscribe() {
+        UnSubscribe();
+        OnEnemyCountChange += MonitorEnemyCount;
+    }
+
+    private void UnSubscribe() {
+        OnEnemyCountChange -= MonitorEnemyCount;
+    }
+    #endregion Methods
 }

@@ -1,35 +1,30 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Enemy : MonoBehaviour{
-
+public class Enemy : MonoBehaviour {
     private Rigidbody enemyRb;
     private GameObject player;
 
-    [SerializeField]
-    private float speed = 3.0f;
+    [SerializeField] private float speed = 3.0f;
 
-
-    // Start is called before the first frame update
-    void Start(){
-
-        enemyRb = GetComponent<Rigidbody>();
-        player = GameObject.Find("Player");
-        
+    private void Awake() {
+        SpawnManager.Instance.UpdateEnemyCount(1);
     }
 
-    // Update is called once per frame
-    void Update(){
+    private void OnDestroy() {
+        SpawnManager.Instance.UpdateEnemyCount(-1);
+    }
 
+    private void Start() {
+        enemyRb = GetComponent<Rigidbody>();
+        player = GameObject.Find("Player");
+    }
+
+    private void Update() {
         Vector3 lookDirection = (player.transform.position - transform.position).normalized;
         enemyRb.AddForce(lookDirection * speed);
 
-        if (transform.position.y <= -10) {
+        if(transform.position.y <= -10) {
             Destroy(gameObject);
-
         }
-        
     }
 }
