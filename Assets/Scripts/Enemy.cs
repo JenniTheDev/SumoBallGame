@@ -5,7 +5,8 @@ public class Enemy : MonoBehaviour {
     private Rigidbody enemyRb;
     private GameObject player;
     private int score = 0;
-    [SerializeField] public Text ScoreText;
+    [SerializeField] private Text scoreText;
+    
 
     [SerializeField] private float speed = 3.0f;
 
@@ -22,6 +23,7 @@ public class Enemy : MonoBehaviour {
         enemyRb = GetComponent<Rigidbody>();
         player = GameObject.Find("Player");
         
+        
     }
 
     private void Update() {
@@ -36,6 +38,7 @@ public class Enemy : MonoBehaviour {
     }
 
 void SetScoreText() {
-        ScoreText.text = "Score: " + score.ToString();
+        scoreText.text = "Score: " + score.ToString();
+       
     }
 }
